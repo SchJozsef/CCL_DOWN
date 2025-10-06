@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -6,16 +7,16 @@
 <title>Conclusion Downmeter</title>
 
 <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm.3.0/dist/css/bootstrap.min.css
-
+<link href="jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css
 <!-- Chart.js -->
 https://cdn.jsdelivr.net/npm/chart.js</script>
 
 <style>
   body { background: #f8f9fa; }
-  .status-ok { color: green; font-weight: bold; font-size: 1.5rem; }
-  .status-error { color: red; font-weight: bold; font-size: 1.5rem; }
+  .status-ok { color: #28a745; font-weight: bold; font-size: 1.5rem; }
+  .status-error { color: #dc3545; font-weight: bold; font-size: 1.5rem; }
   .chart-container { width: 100%; max-width: 700px; margin: 30px auto; }
+  .spinner-border { width: 2rem; height: 2rem; }
 </style>
 </head>
 <body class="container py-4">
@@ -24,7 +25,10 @@ https://cdn.jsdelivr.net/npm/chart.js</script>
 <div class="card p-4 mb-4 text-center shadow">
   <h4>Figyelt oldal:</h4>
   <p><strong>https://sm.cetin.rs/conclusion/Main</strong></p>
-  <div id="status" class="status">Ellenőrzés folyamatban...</div>
+  <div id="status" class="status mb-3">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Ellenőrzés folyamatban...</p>
+  </div>
 </div>
 
 <div class="chart-container">
@@ -42,8 +46,8 @@ chart = new Chart(ctx, {
     datasets: [{
       label: 'Elérhetőségi állapot (%)',
       data: [],
-      borderColor: 'green',
-      backgroundColor: 'rgba(0,128,0,0.1)',
+      borderColor: '#28a745',
+      backgroundColor: 'rgba(40,167,69,0.1)',
       fill: true,
       tension: 0.3
     }]
@@ -59,12 +63,10 @@ chart = new Chart(ctx, {
 async function checkWebsite() {
   try {
     await fetch(url, { method: 'GET', mode: 'no-cors' });
-    document.getElementById("status").textContent = "Az oldal elérhető ✅";
-    document.getElementById("status").className = "status-ok";
+    document.getElementById("status").innerHTML = "<span class='status-ok'>Az oldal elérhető ✅</span>";
     updateChart(100);
   } catch {
-    document.getElementById("status").textContent = "Unexpected technical error. Please try later";
-    document.getElementById("status").className = "status-error";
+    document.getElementById("status").innerHTML = "<span class='status-error'>Hiba ❌</span>";
     updateChart(0);
   }
 }
@@ -72,14 +74,15 @@ async function checkWebsite() {
 function updateChart(value) {
   chart.data.labels.push(new Date().toLocaleTimeString());
   chart.data.datasets[0].data.push(value);
-  if (chart.data.labels.length > 20) {
+  if (chart.data.labels.length > 30) {
     chart.data.labels.shift();
     chart.data.datasets[0].data.shift();
   }
   chart.update();
 }
 
-setInterval(checkWebsite, 30000);
+// Ellenőrzés 5 másodpercenként
+setInterval(checkWebsite, 5000);
 checkWebsite();
 </script>
 </body>
